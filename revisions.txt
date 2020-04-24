@@ -1,3 +1,9 @@
+commit a5e3179157f1470de192a0fd6530b5fac4652a58
+Author: Danilososa98 <danilososa98@unitec.edu>
+Date:   Thu Apr 23 22:33:58 2020 -0600
+
+    Inventory, addPart and quit are done
+
 commit 0b0221088638bb6f52d3387313b93c456dc1dfd4
 Author: Danilososa98 <danilososa98@unitec.edu>
 Date:   Thu Apr 23 19:59:56 2020 -0600
