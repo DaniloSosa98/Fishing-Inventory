@@ -6,6 +6,15 @@
 #include "inventory.h"
 #include "trimit.h"
 
+inventory_t * inv_init() {
+	inventory_t * invp = malloc(sizeof(inventory_t));
+	invp->part_list = malloc(sizeof(part_t));
+	invp->part_count = 0; 
+	invp->assembly_list = malloc(sizeof(assembly_t));
+	invp->assembly_count = 0;
+	return(invp);
+}
+
 void help(){
     printf("Requests:\n");
     printf("    addPart\n");
@@ -31,12 +40,30 @@ assembly_t * lookup_assembly(assembly_t * ap, char * id){
 
 item_t * lookup_item(item_t * ip, char * id){
 
-}
+}*/
 
 void add_part(inventory_t * invp, char * id){
+    part_t * temp = invp->part_list;
+    for (int i = 1; i<=invp->part_count; i++){
+        if(strcmp(id, temp->id) == 0){
+            printf("Part already exists\n");
+            return;
+        }
+        temp = temp->next;
+    }
 
+    if(strlen(id) <= 11 && id[0] == 'P'){
+        part_t * p = malloc(sizeof(part_t));
+
+        strcpy(p->id, id);
+        p->next = invp->part_list;
+        invp->part_list = p;
+        invp->part_count++;
+    }else{
+        printf("ID is invalid\n");
+    }
 }
-
+/*
 void add_assembly(inventory_t * invp, char * id, int capacity, items_needed_t * items){
 
 }
@@ -73,11 +100,26 @@ void get(inventory_t * invp, char * id, int n, items_needed_t * parts){
 void print_inventory(inventory_t * invp){
 
 }
-
+*/
 void print_parts(inventory_t * invp){
-
+    if(invp->part_count > 0){
+        printf("Part inventory:\n");
+        printf("---------------\n");
+        printf("Part ID\n");
+        printf("===========\n");
+        part_t * temp = invp->part_list;
+        for (int i = 1; i<=invp->part_count; i++){
+            printf("%s\n", temp->id);
+            temp = temp->next;
+        }
+        
+    }else{
+        printf("Part inventory:\n");
+        printf("---------------\n");
+        printf("NO PARTS\n");
+    }
 }
-
+/*
 void print_items_needed(items_needed_t * items){
 
 }
@@ -86,17 +128,14 @@ void free_inventory(inventory_t * invp){
 
 }*/
 
-void processRequest(char * request){
-    char ** toToken = (char **) calloc(120, sizeof(char *));
-    for (size_t i = 0; request != NULL; i++){
-                toToken[i] = request;
-                request = strtok(NULL, " ");
-    }
-
-    char * command = toToken[0];
+void processRequest(char * command, char ** toToken, inventory_t * invp){
+    
+    
+    (void) invp;
+    (void) toToken;
 
     if (strcmp(command, "addPart") == 0){
-        printf("addPart\n");
+        add_part(invp, toToken[1]);
     }else if (strcmp(command, "addAssembly") == 0){
         printf("addAssembly\n");
     }else if (strcmp(command, "fulfillOrder") == 0){
@@ -110,15 +149,15 @@ void processRequest(char * request){
     }else if (strcmp(command, "inventory") == 0){
         printf("inventory\n");
     }else if (strcmp(command, "parts") == 0){
-        printf("parts\n");
+        print_parts(invp);
     }else if (strcmp(command, "help") == 0){
         help();
     }else if (strcmp(command, "clear") == 0){
         printf("clear\n");
     }else if (strcmp(command, "quit") == 0){
-        printf("quit\n");
+        exit(0);
     }else{
-        printf("Command does not exists");
+        printf("Command does not exists\n");
     }
 }
 
@@ -138,7 +177,7 @@ int main(int argc, char *argv[]){
         fprintf( stderr, "usage: ./inventory [file]\n");
         return EXIT_FAILURE;
     }
-
+    inventory_t * invp = inv_init();
     char * line = NULL;
     size_t size = 0;
     
@@ -156,14 +195,18 @@ int main(int argc, char *argv[]){
 
             line = trim(line);
             printf("+ %s\n", line);
+
             char * token = strtok(line, " ");
 
-            processRequest(token);
+            char ** toToken = (char **) calloc(120, sizeof(char *));
+            for (size_t i = 0; token != NULL; i++){
+                toToken[i] = token;
+                token = strtok(NULL, " ");
+            }
+
+            char * command = toToken[0];
+
+            processRequest(command, toToken, invp);
         }
-        
     }
-
-    (void)argc;
-    (void)argv;
-
 }

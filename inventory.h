@@ -4,7 +4,7 @@
 extern char * trim(char *);
 extern int getline(char **, size_t *, FILE *);
 
-#define ID_MAX // **FIXME**
+#define ID_MAX 11
 
 // part
 struct part {

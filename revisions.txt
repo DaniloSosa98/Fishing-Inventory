@@ -1,3 +1,9 @@
+commit 0b0221088638bb6f52d3387313b93c456dc1dfd4
+Author: Danilososa98 <danilososa98@unitec.edu>
+Date:   Thu Apr 23 19:59:56 2020 -0600
+
+    Input handling and help print
+
 commit 6ec177becd9a23ad4836aedf52fe354ac468e648
 Author: Danilososa98 <danilososa98@unitec.edu>
 Date:   Wed Apr 22 22:24:27 2020 -0600
