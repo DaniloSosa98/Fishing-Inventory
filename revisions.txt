@@ -1,3 +1,9 @@
+commit b8bd20481c18fb0f5ede2b8770eab582ef7bf55a
+Author: Danilososa98 <danilososa98@unitec.edu>
+Date:   Fri Apr 24 21:00:05 2020 -0600
+
+    Project partially done, missing comments, error messages and sorting
+
 commit aa306a927be5251e8f7c7e5fa297d1963b6699f3
 Author: Danilososa98 <danilososa98@unitec.edu>
 Date:   Fri Apr 24 20:23:40 2020 -0600

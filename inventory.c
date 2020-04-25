@@ -67,22 +67,18 @@ void add_part(inventory_t * invp, char * id){
     part_t * temp = invp->part_list;
     for (int i = 1; i<=invp->part_count; i++){
         if(strcmp(id, temp->id) == 0){
-            printf("Part already exists\n");
+            printf("!!! %s: duplicate part ID\n", id);
             return;
         }
         temp = temp->next;
     }
 
-    if(strlen(id) <= 11 && id[0] == 'P'){
-        part_t * p = malloc(sizeof(part_t));
+    part_t * p = malloc(sizeof(part_t));
 
-        strcpy(p->id, id);
-        p->next = invp->part_list;
-        invp->part_list = p;
-        invp->part_count++;
-    }else{
-        printf("ID is invalid\n");
-    }
+    strcpy(p->id, id);
+    p->next = invp->part_list;
+    invp->part_list = p;
+    invp->part_count++;
 }
 
 void add_assembly(inventory_t * invp, char * id, int capacity, items_needed_t * items){
@@ -278,7 +274,7 @@ void free_inventory(inventory_t * invp){
 void empty(inventory_t * invp, char * id){
     assembly_t * ap = lookup_assembly(invp->assembly_list, id);
     if(ap == NULL){
-        printf("Assembly does not exists\n");
+        printf("!!! %s: assembly ID is not in the inventory\n", id);
         return;
     }
 
@@ -286,12 +282,17 @@ void empty(inventory_t * invp, char * id){
 }
 
 void processRequest(char * command, char ** toToken, inventory_t * invp){
-    
-    
-    (void) invp;
-    (void) toToken;
 
     if (strcmp(command, "addPart") == 0){
+        char * id = toToken[1];
+        if(strlen(id) > 11){
+            printf("!!! %s: part ID too long\n", id);
+            return;
+        }
+        if(id[0] != 'P'){
+            printf("!!! %s: part ID must start with 'P'\n", id);
+            return;
+        }
         add_part(invp, toToken[1]);
 
     }else if (strcmp(command, "addAssembly") == 0){
@@ -327,7 +328,11 @@ void processRequest(char * command, char ** toToken, inventory_t * invp){
             char * id = toToken[i];
             int quantity = atoi(toToken[i+1]);
             if(lookup_assembly(invp->assembly_list, id) == NULL){
-                printf("Assembly not found\n");
+                printf("!!! %s: assembly ID is not in the inventory -- order canceled\n", id);
+                return;
+            }
+            if(quantity<=0){
+                printf("!!! %d: illegal order quantity for ID %s -- order canceled\n", quantity, id);
                 return;
             }
             add_item(in, id, quantity);
@@ -350,19 +355,19 @@ void processRequest(char * command, char ** toToken, inventory_t * invp){
         char* id = toToken[1];
         int n = atoi(toToken[2]);
 
-        if(n<0){
-            printf("n should be positive\n");
+        if(n<=0){
+            printf("!!! %d: illegal quantity for ID %s\n", n, id);
             return;
         }
 
         assembly_t * a = lookup_assembly(invp->assembly_list, id);
         if(a==NULL){
-            printf("Assembly does not exists\n");
+            printf("!!! %s: assembly ID is not in the inventory\n", id);
             return;
         }
 
         if(a->on_hand == a->capacity || a->capacity == 0){
-            printf("Can't stock\n");
+            printf("!!! %s: assembly is at max capacity\n", id);
             return;
         }
 
@@ -394,7 +399,7 @@ void processRequest(char * command, char ** toToken, inventory_t * invp){
             char * id = toToken[1];
             assembly_t * as = lookup_assembly(invp->assembly_list, id);
             if(as == NULL){
-                printf("Assembly not found\n");
+                printf("!!! %s: assembly ID is not in the inventory\n", id);
                 return;
             }
             if(as->on_hand < ((float)as->capacity/2)){
@@ -422,6 +427,11 @@ void processRequest(char * command, char ** toToken, inventory_t * invp){
         free(parts);
 
     }else if (strcmp(command, "empty") == 0){
+        char * id = toToken[1];
+        if(id[0] != 'A'){
+            printf("!!! %s: ID not an assembly\n", id);
+            return;
+        }
         empty(invp, toToken[1]);
     }else if (strcmp(command, "inventory") == 0){
         if(tokCount>1){
@@ -443,7 +453,7 @@ void processRequest(char * command, char ** toToken, inventory_t * invp){
     }else if (strcmp(command, "quit") == 0){
         exit(0);
     }else{
-        printf("Command does not exists\n");
+        printf("!!! %s: unknown command\n", command);
     }
 }
 
