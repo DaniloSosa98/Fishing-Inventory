@@ -337,7 +337,43 @@ void processRequest(char * command, char ** toToken, inventory_t * invp){
         free(parts);
 
     }else if (strcmp(command, "stock") == 0){
-        printf("stock\n");
+        char* id = toToken[1];
+        int n = atoi(toToken[2]);
+
+        if(n<0){
+            printf("n should be positive\n");
+            return;
+        }
+
+        assembly_t * a = lookup_assembly(invp->assembly_list, id);
+        if(a==NULL){
+            printf("Assembly does not exists\n");
+            return;
+        }
+
+        if(a->on_hand == a->capacity || a->capacity == 0){
+            printf("Can't stock\n");
+            return;
+        }
+
+        items_needed_t * parts = malloc(sizeof(items_needed_t));
+        parts->item_list = malloc(sizeof(item_t));
+        parts->item_count = 0;
+        
+        if (a->on_hand + n > a->capacity){
+            n = a->capacity - a->on_hand;
+            make(invp, id, n, parts);
+            a->on_hand =+ n;
+        }
+        else{
+            make(invp, id, n, parts);
+            a->on_hand =+ n;
+        }
+
+        print_items_needed(parts);
+        free(parts);
+        
+
     }else if (strcmp(command, "restock") == 0){
         printf("restock\n");
     }else if (strcmp(command, "empty") == 0){
