@@ -196,7 +196,7 @@ void print_inventory(inventory_t * invp){
     for (int i = 0; i < invp->assembly_count; i++){
         int onHand = a->on_hand;
         int capacity = a->capacity;
-        if(onHand < (capacity/2)){
+        if(onHand < ((float)capacity/2)){
             printf("%-11s %8d %7d*\n", a->id, capacity, onHand);
         }else{
             printf("%-11s %8d %7d\n", a->id, capacity, onHand);
@@ -260,11 +260,21 @@ void print_items_needed(items_needed_t * items){
     }
     
 }
-/*
-void free_inventory(inventory_t * invp){
 
+void free_inventory(inventory_t * invp){
+    //free parts list
+    free(invp->part_list);
+    //free assembly list and its parts list
+    assembly_t * a = invp->assembly_list;
+    for (int i = 0; i < invp->assembly_count; i++){
+        free(a->items);
+        a = a->next;
+    }
+    free(invp->assembly_list);
+    free(invp);
+    invp = inv_init();
 }
-*/
+
 void empty(inventory_t * invp, char * id){
     assembly_t * ap = lookup_assembly(invp->assembly_list, id);
     if(ap == NULL){
@@ -375,7 +385,42 @@ void processRequest(char * command, char ** toToken, inventory_t * invp){
         
 
     }else if (strcmp(command, "restock") == 0){
-        printf("restock\n");
+        
+        items_needed_t * parts = malloc(sizeof(items_needed_t));
+        parts->item_list = malloc(sizeof(item_t));
+        parts->item_count = 0;
+
+        if(tokCount>1){
+            char * id = toToken[1];
+            assembly_t * as = lookup_assembly(invp->assembly_list, id);
+            if(as == NULL){
+                printf("Assembly not found\n");
+                return;
+            }
+            if(as->on_hand < ((float)as->capacity/2)){
+                    int n = as->capacity - as->on_hand;
+                    printf(">>> restocking assembly %s with %d items\n", as->id, n);
+                    make(invp, as->id, n, parts);
+                    as->on_hand = as->capacity;
+            }
+
+        }else{
+            assembly_t * a = invp->assembly_list;
+            for (int i = 0; i < invp->assembly_count; i++){
+                if(a->on_hand < ((float)a->capacity/2)){
+                    int n = a->capacity - a->on_hand;
+                    printf(">>> restocking assembly %s with %d items\n", a->id, n);
+                    make(invp, a->id, n, parts);
+                    a->on_hand = a->capacity;
+                }
+                a = a->next;
+            }
+            
+        }
+
+        print_items_needed(parts);
+        free(parts);
+
     }else if (strcmp(command, "empty") == 0){
         empty(invp, toToken[1]);
     }else if (strcmp(command, "inventory") == 0){
@@ -394,7 +439,7 @@ void processRequest(char * command, char ** toToken, inventory_t * invp){
     }else if (strcmp(command, "help") == 0){
         help();
     }else if (strcmp(command, "clear") == 0){
-        printf("clear\n");
+        free_inventory(invp);
     }else if (strcmp(command, "quit") == 0){
         exit(0);
     }else{
