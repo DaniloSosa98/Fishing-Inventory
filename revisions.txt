@@ -1,3 +1,9 @@
+commit db082dc43762edb3466d5d013d2e82731bb1221d
+Author: Danilososa98 <danilososa98@unitec.edu>
+Date:   Fri Apr 24 21:31:27 2020 -0600
+
+    Error printing done
+
 commit b8bd20481c18fb0f5ede2b8770eab582ef7bf55a
 Author: Danilososa98 <danilososa98@unitec.edu>
 Date:   Fri Apr 24 21:00:05 2020 -0600
